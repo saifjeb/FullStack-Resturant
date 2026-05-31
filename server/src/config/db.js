@@ -1,16 +1,31 @@
-import { Pool } from "pg";
+import { Pool } from "pg"
 import dotenv from "dotenv"
 dotenv.config()
 
+const connectionString = process.env.CONNECTION_STRING
+if (!connectionString) {
+  console.error("Missing CONNECTION_STRING in server/.env")
+}
+
 const pool = new Pool({
-  connectionString: process.env.CONNECTION_STRING,
-});
+  connectionString,
+})
 
-pool
-  .connect()
-  .then(() => {
-    console.log("db is connected");
-  })
-  .catch((err) => console.log("db error", err));
+let connected = false
 
-export default pool;
+const connectDb = async () => {
+  if (!connectionString) return
+
+  try {
+    await pool.connect()
+    connected = true
+    console.log("db is connected")
+  } catch (err) {
+    console.error("Database connection failed:", err.message)
+  }
+}
+
+connectDb()
+
+export const isDbConnected = () => connected
+export default pool

@@ -1,8 +1,13 @@
 import bcrypt from "bcrypt"
 import { getUserByEmail } from "../models/user.Model.js"
 import { register } from "../models/auth.Model.js"
+import { isDbConnected } from "../config/db.js"
 
 export const registerController = async (req, res) => {
+  if (!isDbConnected()) {
+    return res.status(503).json({ message: "Database unavailable. Please try again later." })
+  }
+
   const { name, email, password } = req.body
 
   try {
